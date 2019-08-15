@@ -1,26 +1,66 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, {Component} from 'react';
 import './App.css';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+import {connect} from 'react-redux'
+import {addUser, getUsers} from "./actions/userActions";
+
+class App extends Component {
+
+    constructor(props) {
+        super(props);
+        this.newUser = this.newUser.bind(this);
+    }
+
+    componentDidMount() {
+        this.props.onGetUsers()
+    }
+
+    newUser() {
+        const user_obj = {user_id: 10, username: 'ozanteoman'};
+        this.props.onAddUser(user_obj)
+    }
+
+    userList() {
+        return this.props.users.user_list.map((user, key) => {
+            return (<div key={key}><h3>{user.username}</h3></div>)
+        })
+    }
+
+    render() {
+        return (
+            <div className="App">
+                <div>
+                    <h3> Eleman Sayısı {this.props.newCount}</h3>
+                </div>
+                <div>
+                    {this.userList()}
+                </div>
+                <div>
+                    <button onClick={this.newUser}>Add a new user</button>
+                </div>
+            </div>
+        );
+    }
 }
 
-export default App;
+const mapStateToProps = (state, props) => {
+    return {
+        users: state.user,
+        newCount: props.count + 2
+    }
+};
+
+const mapDispatchToProps = {
+    onAddUser: addUser,
+    onGetUsers: getUsers
+};
+
+const mergeProps = (propsFromState, propsFromDispatch, propsFromOwn) => {
+    return {
+        ...propsFromState,
+        ...propsFromDispatch,
+        ...propsFromOwn,
+    }
+};
+
+export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(App)
